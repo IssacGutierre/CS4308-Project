@@ -1,7 +1,9 @@
 import java.util.*;
 
 public class Lex {
-    public static enum token {
+
+    // Token codes
+    public static enum Type {
         T_AND, // &&
         T_ASSIGN, // =
         T_BOOLTYPE, // bool
@@ -20,7 +22,7 @@ public class Lex {
         T_FUNC, // func
         T_GEQ, // >=
         T_GT, // >
-        T_ID, // identifier 
+        T_ID, // identifier
         T_IF, // if
         T_INTCONSTANT, // int_lit
         T_INTTYPE, // int
@@ -45,14 +47,90 @@ public class Lex {
         T_RPAREN, // )
         T_RSB, // ]
         T_SEMICOLON, // ;
-        T_STRINGCONSTANT, // string_lit 
+        T_STRINGCONSTANT, // string_lit
         T_STRINGTYPE, // string
         T_TRUE, // true
         T_VAR, // var
         T_VOID, // void
         T_WHILE, // while
-        T_WHITESPACE, // whitespace (see section on Whitespace)
+        T_WHITESPACE; // whitespace
     }
 
-    
+    public static class Token {
+        public final Type t;
+        public final String c;
+
+        //Constructor
+        public Token(Type t, String c) {
+            this.t = t;
+            this.c = c;
+        }
+
+        public String toString() {
+            if (t == Type.T_STRINGCONSTANT) {
+                return "T_STRINGCONSTANT " + "(value= " + c + ")";
+            }
+            return t.toString();
+        }
+    }
+
+    //example: .getChar("void main() {", 5) --> returns "main"
+    public String getChar(String s, int i) {
+        int j = i;
+        for (; j < s.length();) { //iterate until you hit an index that is NOT a letter
+            if (Character.isLetter(s.charAt(j))) {
+                j++;
+            } else {
+                return s.substring(i, j);
+            }
+        }
+        return s.substring(i, j);
+    }
+
+    //method that returns a list containing Token objects 
+    public List<Token> lex(String input) {
+        List<Token> result = new ArrayList<Token>();
+        for(int i = 0; i < input.length(); ) {
+            switch(input.charAt(i)) {
+            case '&&':
+                result.add(new Token(Type.T_AND, "&&"));
+                i++;
+                break;
+            case '=':
+                result.add(new Token(Type.T_ASSIGN, "="));
+                i++;
+                break;
+            case 'bool':
+                result.add(new Token(Type.T_BOOLTYPE, "bool"));
+                i++;
+                break;
+            case 'break':
+                result.add(new Token(Type.T_BREAK, "break"));
+                i++;
+                break;
+            case 'char_lit':
+                result.add(new Token(Type.T_CHARCONSTANT, "char_lit"));
+                i++;
+                break;
+            case ',':
+                result.add(new Token(Type.T_COMMA, ","));
+                i++;
+                break;
+            case 'continue':
+                result.add(new Token(Type.T_CONTINUE, "continue"));
+                i++;
+                break;
+            case '/':
+                result.add(new Token(Type.T_DIV, "/"));
+                i++;
+                break;
+            default: //ingoring white space 
+                if(Character.isWhitespace(input.charAt(i))) {
+                    i++;
+                }
+                break;
+            }
+        }
+        return result;
+    }
 }

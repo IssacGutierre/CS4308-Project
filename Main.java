@@ -1,25 +1,21 @@
-import java.util.Scanner;
-
-//import Lex.Token;
-
+import java.io.IOException;
 import java.nio.file.Paths;
+import java.nio.file.Files;
+import java.nio.charset.*;
+
+/*to run make sure the t1.decaf file is in the project directory 
+ * 1) compile ($ javac Main.java)
+ * 2) execute ($ java Main t1.decaf)
+ * NOTE: -the column numbers are wrong, 
+ *       -does not pick up certain characters
+ *       -string constant and int constant not implemented yet
+*/
 
 public class Main {
-    public static void main(String args[]) {
-        /*try (Scanner scan = new Scanner(Paths.get(args[0]))) {
-            //variable to hold input data
-        } catch (Exception e) {
-            System.out.println("Error: " + e.getMessage());
-            return;
-        } */
+    public static void main(String args[]) throws IOException {
+        String content = Files.readString(Paths.get(args[0]), StandardCharsets.UTF_8);
 
-        //String test = "s = \"hello\""; //quotes mess it up
-
-        //String test = "c = test(4, 5);"; //does not print out ints
-
-        Lex lexicalA = new Lex(test);
-
+        Lex lexicalA = new Lex(content);
         System.out.println(lexicalA);
-
     }
 }

@@ -204,7 +204,10 @@ public class Lex {
                         result.add(new Token(Type.T_INTCONSTANT, intLiteral, line, columnStart, column - 1));
                     } else {
                         String nonCharacter = getChar(input, i);
-                        i += nonCharacter.length();
+                        int tokenLength = nonCharacter.length();
+                        result.add(new Token(Type.T_IDENTIFIER, nonCharacter, line, columnStart, columnStart + tokenLength - 1));
+                        i += tokenLength; // Move index forward
+                        column += tokenLength; // Update column by the token length
 
                         switch (nonCharacter) {
                             case "&&":

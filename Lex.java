@@ -42,8 +42,7 @@ public class Lex {
                 char cToChar = c.charAt(0);
                 if (Character.isLetter(cToChar)) {
                     return c + "    " + "line " + line + " Cols " + columnStart + " - " + columnEnd + " is " + t;
-                }
-                else {
+                } else {
                     return c + "    " + "line " + line + " Cols " + columnStart + " - " + columnEnd + " is " + "\'" + c
                             + "\'";
                 }
@@ -83,10 +82,27 @@ public class Lex {
             int columnStart = column;
 
             switch (input.charAt(i)) {
+                case '&':
+                    if (i + 1 < input.length() && input.charAt(i + 1) == '&') {
+                        result.add(new Token(Type.T_AND, "&&", line, column, column + 1));
+                        i += 2;
+                        column += 2;
+                    } else {
+                        System.err.println("Error: & is not a token");
+                        i++;
+                        column++;
+                    }
+                    break;
                 case '=':
-                    result.add(new Token(Type.T_ASSIGN, "=", line, column, column));
-                    i++;
-                    column++;
+                    if (i + 1 < input.length() && input.charAt(i + 1) == '=') {
+                        result.add(new Token(Type.T_EQ, "==", line, column, column + 1));
+                        i += 2;
+                        column += 2;
+                    } else {
+                        result.add(new Token(Type.T_ASSIGN, "=", line, column, column));
+                        i++;
+                        column++;
+                    }
                     break;
                 case ',':
                     result.add(new Token(Type.T_COMMA, ",", line, column, column));
@@ -104,9 +120,19 @@ public class Lex {
                     column++;
                     break;
                 case '>':
-                    result.add(new Token(Type.T_GT, ">", line, column, column));
-                    i++;
-                    column++;
+                    if (i + 1 < input.length() && input.charAt(i + 1) == '=') {
+                        result.add(new Token(Type.T_GEQ, ">=", line, column, column + 1));
+                        i += 2;
+                        column += 2;
+                    } else if (i + 1 < input.length() && input.charAt(i + 1) == '>') {
+                        result.add(new Token(Type.T_RIGHTSHIFT, ">>", line, column, column + 1));
+                        i += 2;
+                        column += 2;
+                    } else {
+                        result.add(new Token(Type.T_GT, ">", line, column, column));
+                        i++;
+                        column++;
+                    }
                     break;
                 case '{':
                     result.add(new Token(Type.T_LCB, "{", line, column, column));
@@ -124,9 +150,19 @@ public class Lex {
                     column++;
                     break;
                 case '<':
-                    result.add(new Token(Type.T_LT, "<", line, column, column));
-                    i++;
-                    column++;
+                    if (i + 1 < input.length() && input.charAt(i + 1) == '=') {
+                        result.add(new Token(Type.T_LEQ, "<=", line, column, column + 1));
+                        i += 2;
+                        column += 2;
+                    } else if (i + 1 < input.length() && input.charAt(i + 1) == '<') {
+                        result.add(new Token(Type.T_LEFTSHIFT, "<<", line, column, column + 1));
+                        i += 2;
+                        column += 2;
+                    } else {
+                        result.add(new Token(Type.T_LT, "<", line, column, column));
+                        i++;
+                        column++;
+                    }
                     break;
                 case '-':
                     result.add(new Token(Type.T_MINUS, "-", line, column, column));
@@ -182,8 +218,8 @@ public class Lex {
                         i++; // Skip the closing quote
                         column++;
                     } else {
-                    // Handle error: Unterminated string
-                    System.err.println("Error: Unterminated string at line " + line + ", column " + columnStart);
+                        // Handle error: Unterminated string
+                        System.err.println("Error: Unterminated string at line " + line + ", column " + columnStart);
                     }
                     break;
                 default: // ingoring white space
@@ -194,8 +230,8 @@ public class Lex {
                         // Integer constant
                         int startDigit = i;
                         while (i < input.length() && Character.isDigit(input.charAt(i))) {
-                        i++;
-                        column++;
+                            i++;
+                            column++;
                         }
                         String intLiteral = input.substring(startDigit, i);
                         result.add(new Token(Type.T_INTCONSTANT, intLiteral, line, columnStart, column - 1));
@@ -203,167 +239,164 @@ public class Lex {
                         String nonCharacter = getChar(input, i);
                         int tokenLength = nonCharacter.length();
 
-                        switch (nonCharacter) {
-                            case "&&":
-                                column += nonCharacter.length();
-                                result.add(new Token(Type.T_AND, nonCharacter, line, columnStart, column));
-                                i += nonCharacter.length();
-                                break;
-                            case "bool":
-                                column += nonCharacter.length();
-                                result.add(new Token(Type.T_BOOLTYPE, nonCharacter, line, columnStart, column));
-                                i += nonCharacter.length();
-                                break;
-                            case "break":
-                                column += nonCharacter.length();
-                                result.add(new Token(Type.T_BREAK, nonCharacter, line, columnStart, column));
-                                i += nonCharacter.length();
-                                break;
-                            case "char_lit":
-                                column += nonCharacter.length();
-                                result.add(new Token(Type.T_CHARCONSTANT, nonCharacter, line, columnStart, column));
-                                i += nonCharacter.length();
-                                break;
-                            case "continue":
-                                column += nonCharacter.length();
-                                result.add(new Token(Type.T_CONTINUE, nonCharacter, line, columnStart, column));
-                                i += nonCharacter.length();
-                                break;
-                            case "else":
-                                column += nonCharacter.length();
-                                result.add(new Token(Type.T_ELSE, nonCharacter, line, columnStart, column));
-                                i += nonCharacter.length();
-                                break;
-                            case "==":
-                                column += nonCharacter.length();
-                                result.add(new Token(Type.T_EQ, nonCharacter, line, columnStart, column));
-                                i += nonCharacter.length();
-                                break;
-                            case "extern":
-                                column += nonCharacter.length();
-                                result.add(new Token(Type.T_EXTERN, nonCharacter, line, columnStart, columnStart + tokenLength - 1));
-                                i += nonCharacter.length();
-                                break;
-                            case "false":
-                                column += nonCharacter.length();
-                                result.add(new Token(Type.T_FALSE, nonCharacter, line, columnStart, columnStart + tokenLength - 1));
-                                i += nonCharacter.length();
-                                break;
-                            case "for":
-                                column += nonCharacter.length();
-                                result.add(new Token(Type.T_FOR, nonCharacter, line, columnStart, columnStart + tokenLength - 1));
-                                i += nonCharacter.length();
-                                break;
-                            case "func":
-                                column += nonCharacter.length();
-                                result.add(new Token(Type.T_FUNC, nonCharacter, line, columnStart, columnStart + tokenLength - 1));
-                                i += nonCharacter.length();
-                                break;
-                            case ">=":
-                                column += nonCharacter.length();
-                                result.add(new Token(Type.T_GEQ, nonCharacter, line, columnStart, columnStart + tokenLength - 1));
-                                i += nonCharacter.length();
-                                break;
-                            case "identifier":
-                                column += nonCharacter.length();
-                                result.add(new Token(Type.T_ID, nonCharacter, line, columnStart, columnStart + tokenLength - 1));
-                                i += nonCharacter.length();
-                                break;
-                            case "if":
-                                column += nonCharacter.length();
-                                result.add(new Token(Type.T_IF, nonCharacter, line, columnStart, columnStart + tokenLength - 1));
-                                i += nonCharacter.length();
-                                break;
-                            case "int_lit":
-                                column += nonCharacter.length();
-                                result.add(new Token(Type.T_INTCONSTANT, nonCharacter, line, columnStart, columnStart + tokenLength - 1));
-                                i += nonCharacter.length();
-                                break;
-                            case "int":
-                                column += nonCharacter.length();
-                                result.add(new Token(Type.T_INTTYPE, nonCharacter, line, columnStart, columnStart + tokenLength - 1));
-                                i += nonCharacter.length();
-                                break;
-                            case "<<":
-                                column += nonCharacter.length();
-                                result.add(new Token(Type.T_LEFTSHIFT, nonCharacter, line, columnStart, columnStart + tokenLength - 1));
-                                i += nonCharacter.length();
-                                break;
-                            case "<=":
-                                column += nonCharacter.length();
-                                result.add(new Token(Type.T_LEQ, nonCharacter, line, columnStart, columnStart + tokenLength - 1));
-                                i += nonCharacter.length();
-                                break;
-                            case "!=":
-                                column += nonCharacter.length();
-                                result.add(new Token(Type.T_NEQ, nonCharacter, line, columnStart, columnStart + tokenLength - 1));
-                                i += nonCharacter.length();
-                                break;
-                            case "null":
-                                column += nonCharacter.length();
-                                result.add(new Token(Type.T_NULL, nonCharacter, line, columnStart, columnStart + tokenLength - 1));
-                                i += nonCharacter.length();
-                                break;
-                            case "||":
-                                column += nonCharacter.length();
-                                result.add(new Token(Type.T_OR, nonCharacter, line, columnStart, columnStart + tokenLength - 1));
-                                i += nonCharacter.length();
-                                break;
-                            case "package":
-                                column += nonCharacter.length();
-                                result.add(new Token(Type.T_PACKAGE, nonCharacter, line, columnStart, columnStart + tokenLength - 1));
-                                i += nonCharacter.length();
-                                break;
-                            case "return":
-                                column += nonCharacter.length();
-                                result.add(new Token(Type.T_RETURN, nonCharacter, line, columnStart, columnStart + tokenLength - 1));
-                                i += nonCharacter.length();
-                                break;
-                            case ">>":
-                                column += nonCharacter.length();
-                                result.add(new Token(Type.T_RIGHTSHIFT, nonCharacter, line, columnStart, columnStart + tokenLength - 1));
-                                i += nonCharacter.length();
-                                break;
-                            case "string_lit":
-                                column += nonCharacter.length();
-                                result.add(new Token(Type.T_STRINGCONSTANT, nonCharacter, line, columnStart, columnStart + tokenLength - 1));
-                                i += nonCharacter.length();
-                                break;
-                            case "string":
-                                column += nonCharacter.length();
-                                result.add(new Token(Type.T_STRINGTYPE, nonCharacter, line, columnStart, columnStart + tokenLength - 1));
-                                i += nonCharacter.length();
-                                break;
-                            case "true":
-                                column += nonCharacter.length();
-                                result.add(new Token(Type.T_TRUE, nonCharacter, line, columnStart, columnStart + tokenLength - 1));
-                                i += nonCharacter.length();
-                                break;
-                            case "var":
-                                column += nonCharacter.length();
-                                result.add(new Token(Type.T_VAR, nonCharacter, line, columnStart, columnStart + tokenLength - 1));
-                                i += nonCharacter.length();
-                                break;
-                            case "void":
-                                column += nonCharacter.length();
-                                
-                                //result.add(new Token(Type.T_VOID, nonCharacter, line, columnStart, column));
-                                result.add(new Token(Type.T_VOID, nonCharacter, line, columnStart, columnStart + tokenLength - 1));
+                        if (tokenLength == 0) {
+                            char currentChar = input.charAt(i);
+                            System.err.println("Error: unrecognized character: " + currentChar + " at line " + line
+                                    + ", column " + columnStart);
+                            i++;
+                        } else {
+                            switch (nonCharacter) {
+                                case "bool":
+                                    column += nonCharacter.length();
+                                    result.add(new Token(Type.T_BOOLTYPE, nonCharacter, line, columnStart, column));
+                                    i += nonCharacter.length();
+                                    break;
+                                case "break":
+                                    column += nonCharacter.length();
+                                    result.add(new Token(Type.T_BREAK, nonCharacter, line, columnStart, column));
+                                    i += nonCharacter.length();
+                                    break;
+                                case "char_lit":
+                                    column += nonCharacter.length();
+                                    result.add(new Token(Type.T_CHARCONSTANT, nonCharacter, line, columnStart, column));
+                                    i += nonCharacter.length();
+                                    break;
+                                case "continue":
+                                    column += nonCharacter.length();
+                                    result.add(new Token(Type.T_CONTINUE, nonCharacter, line, columnStart, column));
+                                    i += nonCharacter.length();
+                                    break;
+                                case "else":
+                                    column += nonCharacter.length();
+                                    result.add(new Token(Type.T_ELSE, nonCharacter, line, columnStart, column));
+                                    i += nonCharacter.length();
+                                    break;
+                                case "extern":
+                                    column += nonCharacter.length();
+                                    result.add(new Token(Type.T_EXTERN, nonCharacter, line, columnStart,
+                                            columnStart + tokenLength - 1));
+                                    i += nonCharacter.length();
+                                    break;
+                                case "false":
+                                    column += nonCharacter.length();
+                                    result.add(new Token(Type.T_FALSE, nonCharacter, line, columnStart,
+                                            columnStart + tokenLength - 1));
+                                    i += nonCharacter.length();
+                                    break;
+                                case "for":
+                                    column += nonCharacter.length();
+                                    result.add(new Token(Type.T_FOR, nonCharacter, line, columnStart,
+                                            columnStart + tokenLength - 1));
+                                    i += nonCharacter.length();
+                                    break;
+                                case "func":
+                                    column += nonCharacter.length();
+                                    result.add(new Token(Type.T_FUNC, nonCharacter, line, columnStart,
+                                            columnStart + tokenLength - 1));
+                                    i += nonCharacter.length();
+                                    break;
+                                case "identifier":
+                                    column += nonCharacter.length();
+                                    result.add(new Token(Type.T_ID, nonCharacter, line, columnStart,
+                                            columnStart + tokenLength - 1));
+                                    i += nonCharacter.length();
+                                    break;
+                                case "if":
+                                    column += nonCharacter.length();
+                                    result.add(new Token(Type.T_IF, nonCharacter, line, columnStart,
+                                            columnStart + tokenLength - 1));
+                                    i += nonCharacter.length();
+                                    break;
+                                case "int_lit":
+                                    column += nonCharacter.length();
+                                    result.add(new Token(Type.T_INTCONSTANT, nonCharacter, line, columnStart,
+                                            columnStart + tokenLength - 1));
+                                    i += nonCharacter.length();
+                                    break;
+                                case "int":
+                                    column += nonCharacter.length();
+                                    result.add(new Token(Type.T_INTTYPE, nonCharacter, line, columnStart,
+                                            columnStart + tokenLength - 1));
+                                    i += nonCharacter.length();
+                                    break;
+                                case "!=":
+                                    column += nonCharacter.length();
+                                    result.add(new Token(Type.T_NEQ, nonCharacter, line, columnStart,
+                                            columnStart + tokenLength - 1));
+                                    i += nonCharacter.length();
+                                    break;
+                                case "null":
+                                    column += nonCharacter.length();
+                                    result.add(new Token(Type.T_NULL, nonCharacter, line, columnStart,
+                                            columnStart + tokenLength - 1));
+                                    i += nonCharacter.length();
+                                    break;
+                                case "||":
+                                    column += nonCharacter.length();
+                                    result.add(new Token(Type.T_OR, nonCharacter, line, columnStart,
+                                            columnStart + tokenLength - 1));
+                                    i += nonCharacter.length();
+                                    break;
+                                case "package":
+                                    column += nonCharacter.length();
+                                    result.add(new Token(Type.T_PACKAGE, nonCharacter, line, columnStart,
+                                            columnStart + tokenLength - 1));
+                                    i += nonCharacter.length();
+                                    break;
+                                case "return":
+                                    column += nonCharacter.length();
+                                    result.add(new Token(Type.T_RETURN, nonCharacter, line, columnStart,
+                                            columnStart + tokenLength - 1));
+                                    i += nonCharacter.length();
+                                    break;
+                                case "string_lit":
+                                    column += nonCharacter.length();
+                                    result.add(new Token(Type.T_STRINGCONSTANT, nonCharacter, line, columnStart,
+                                            columnStart + tokenLength - 1));
+                                    i += nonCharacter.length();
+                                    break;
+                                case "string":
+                                    column += nonCharacter.length();
+                                    result.add(new Token(Type.T_STRINGTYPE, nonCharacter, line, columnStart,
+                                            columnStart + tokenLength - 1));
+                                    i += nonCharacter.length();
+                                    break;
+                                case "true":
+                                    column += nonCharacter.length();
+                                    result.add(new Token(Type.T_TRUE, nonCharacter, line, columnStart,
+                                            columnStart + tokenLength - 1));
+                                    i += nonCharacter.length();
+                                    break;
+                                case "var":
+                                    column += nonCharacter.length();
+                                    result.add(new Token(Type.T_VAR, nonCharacter, line, columnStart,
+                                            columnStart + tokenLength - 1));
+                                    i += nonCharacter.length();
+                                    break;
+                                case "void":
+                                    column += nonCharacter.length();
 
-                                i += nonCharacter.length();
-                                break;
-                            case "while":
-                                column += nonCharacter.length();
-                                result.add(new Token(Type.T_WHILE, nonCharacter, line, columnStart, columnStart + tokenLength - 1));
-                                i += nonCharacter.length();
-                                break;
-                            default:
-                                column += nonCharacter.length();
-                                result.add(new Token(Type.T_IDENTIFIER, nonCharacter, line, columnStart, columnStart + tokenLength - 1));
-                                //i++;
-                                i += nonCharacter.length();
+                                    // result.add(new Token(Type.T_VOID, nonCharacter, line, columnStart, column));
+                                    result.add(new Token(Type.T_VOID, nonCharacter, line, columnStart,
+                                            columnStart + tokenLength - 1));
 
-                                break;
+                                    i += nonCharacter.length();
+                                    break;
+                                case "while":
+                                    column += nonCharacter.length();
+                                    result.add(new Token(Type.T_WHILE, nonCharacter, line, columnStart,
+                                            columnStart + tokenLength - 1));
+                                    i += nonCharacter.length();
+                                    break;
+                                default:
+                                    column += nonCharacter.length();
+                                    result.add(new Token(Type.T_IDENTIFIER, nonCharacter, line, columnStart,
+                                            columnStart + tokenLength - 1));
+                                    // i++;
+                                    i += nonCharacter.length();
+
+                                    break;
+                            }
                         }
                     }
                     break;
@@ -376,7 +409,23 @@ public class Lex {
     public String toString() {
         StringBuilder sb = new StringBuilder();
         for (Token t : tokens) {
+            if (t.t == Type.T_INTCONSTANT) {
+                sb.append(t.c)
+              .append("    ")
+              .append("line ").append(t.line)
+              .append(" Cols ").append(t.columnStart).append(" - ").append(t.columnEnd)
+              .append(" is ").append(t.t)
+              .append(" (value= ").append(t.c).append(")").append("\n");
+            } else if (t.t == Type.T_STRINGCONSTANT) {
+                sb.append(t.c)
+              .append("    ")
+              .append("line ").append(t.line)
+              .append(" Cols ").append(t.columnStart).append(" - ").append(t.columnEnd)
+              .append(" is ").append(t.t)
+              .append(" (value= ").append(t.c).append(")").append("\n");
+            } else {
             sb.append(t).append("\n"); // Append each token's string representation
+            }
         }
         return sb.toString(); // Return the final string
     }
